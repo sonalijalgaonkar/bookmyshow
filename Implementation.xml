@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	
+	<api-gateway:autodiscovery apiId="18168796" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="4a9adfe3-b883-446a-8baa-9d6bd76c3866" flowRef="bookmyshow-process-api-main" />
+	<flow name="GetMovies" doc:id="00097f34-d3fb-4643-a034-49ba41ba3623" >
+		<salesforce:query doc:name="All Movies" doc:id="540d5e6b-d7aa-42bb-b44c-3cd86ffbadb2" config-ref="Salesforce_Config1">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id, Movie_ID__c, Movie_Name__c, Duration__c, Language__c FROM Movie__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="e325ccd8-368e-4aca-aa92-e5dc470276c2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="movieslogger" doc:id="e50f5d2d-4ca1-4ba3-91bc-31d3a06d4b11" message="#[payload]"/>
+	</flow>
+	<flow name="Gettheater" doc:id="00220e03-6979-4163-86bd-72de9f6a2c30" >
+		<salesforce:query doc:name="all Theater" doc:id="8fece634-c124-43d5-ad39-9f28edf6de86" config-ref="Salesforce_Config1">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id, Theater_id__c, Theater_name__c, Total_seat__c FROM Theater__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="f9bbdc03-e3e1-4a19-8df7-5305764c3a49" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+  payload	
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="ba6b5044-1cf0-4b1c-9dbc-b3130f193e9d" message="#[payload]"/>
+	</flow>
+	<flow name="getUsers" doc:id="e34b2227-d18e-4f62-bb13-3982385edf3a">
+		<salesforce:query doc:name="Query" doc:id="6e851d7f-1986-4fe2-a9d0-e4e013732c0f" config-ref="Salesforce_Config1">
+			<salesforce:salesforce-query><![CDATA[SELECT Id, User_id__c, Name__c, Email_id__c, Mobile_number__c FROM USER__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="627f5635-1472-48b2-bf1b-1410643c6432">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a490272c-4612-453c-9644-c35a676b39bf" />
+	</flow>
+	<flow name="Createuser" doc:id="131561e4-bc91-4f27-bb98-b1118ea26330" >
+		<ee:transform doc:name="Transform Message" doc:id="ad005a65-b87b-4d7e-9b97-5dcdb7fb5719" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map
+{
+	"EmailID": $.EmailID,
+	"MobileNo": $.MobileNo,
+	"UserID": $.UserID,
+	"UserName": $.UserName
+}
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="5c906573-ee7a-4d19-9786-3bbf16f29084" config-ref="Salesforce_Config1" objectType="User__c" externalIdFieldName="Id"/>
+		<ee:transform doc:name="Transform Message" doc:id="a263100a-de41-4f1a-86f2-01a2ce7a9176" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="606d4819-5ead-4d21-9d80-d8d9e9a1645c" />
+	</flow>
+	<flow name="CreateMovie" doc:id="643f9595-7eb0-4893-9ab6-1c927e7a4067" >
+		<ee:transform doc:name="Transform Message" doc:id="7a8210f8-0c23-40a2-a840-9d255642c445" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[payload map
+{
+	"Name": $.Name,
+	"MovieLanguage__c": $.MovieLanguage__C,
+	"theaterID__c": $.theaterID__c ,
+	"seatsAvailable__c": $.seatsAvailable__c
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="ec43002f-4dd3-4420-a3b0-40b340f914df" config-ref="Salesforce_Config1" objectType="Movie__c" externalIdFieldName="ID"/>
+		<ee:transform doc:name="Transform Message" doc:id="6b023057-5421-4c4e-bb6c-254b2f5b830a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0bd88fa9-3ebb-4b61-b755-80b0fa0bf4dd" />
+	</flow>
+</mule>

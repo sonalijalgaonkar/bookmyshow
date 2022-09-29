@@ -1,0 +1,7 @@
+%dw 2.0
+
+type auto_e493c6ce_456d_4901_8850_3294bf767979_Output_Variables_outboundHeaders = {|
+  "cache-control": String, 
+  expires: String
+|}
+

@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <apikit:config name="Main-config" api="resource::71fde520-99b5-4570-905a-cf5de980e0d0:myproject:1.0.1:raml:zip:Main.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="Main-main" doc:id="c8745e54-7b54-4508-bd15-3911508f43a1">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="Main-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="Main-console">
+        <http:listener config-ref="HTTP_Listener_config" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="Main-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="delete:\booking:application\json:Main-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Ticket: {
+    transactionId: "100-100",
+    "movie-id": 1,
+    movieName: "Brahmastra",
+    viewType: "3-D",
+    language: "Hindi",
+    theaterName: "PVR SB road",
+    screenNumber: "Audi-9",
+    pricePerSeat: 600,
+    bookingDetails: {
+      bookingdetail: [
+        {
+          seatNumber: "11-D"
+        }, 
+        {
+          seatNumber: "12-D"
+        }, 
+        {
+          seatNumber: "13-D"
+        }
+      ]
+    },
+    totalQty: 2,
+    totalPrice: 1200,
+    discount: 0,
+    finalAmount: 1200,
+    status: "Cancelled"
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\users\(user_id):Main-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="user_id">attributes.uriParams.'user_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="delete:\users\(user_id):Main-config" />
+    </flow>
+    <flow name="patch:\users\(user_id):application\json:Main-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="user_id">attributes.uriParams.'user_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="patch:\users\(user_id):application\json:Main-config" />
+    </flow>
+    <flow name="patch:\users\(user_id):application\xml:Main-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="user_id">attributes.uriParams.'user_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="patch:\users\(user_id):application\xml:Main-config" />
+    </flow>
+    <flow name="get:\booking:Main-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Ticket: {
+    transactionId: "100-100",
+    "movie-id": 1,
+    movieName: "Brahmastra",
+    viewType: "3-D",
+    language: "Hindi",
+    theaterName: "PVR SB road",
+    screenNumber: "Audi-9",
+    pricePerSeat: 600,
+    bookingDetails: {
+      bookingdetail: [
+        {
+          seatNumber: "11-D"
+        }, 
+        {
+          seatNumber: "12-D"
+        }, 
+        {
+          seatNumber: "13-D"
+        }
+      ]
+    },
+    totalQty: 2,
+    totalPrice: 1200,
+    discount: 0,
+    finalAmount: 1200,
+    status: "Booked"
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\eTicket:Main-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  movieName: "Jalsa",
+  theatreName: "Inox R City",
+  screenNumber: 2,
+  date: "22/09/2022",
+  time: "15:00",
+  seatNumbers: [
+    1, 
+    2, 
+    3, 
+    4
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\movie\(id):Main-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  id: 1,
+  name: "Brahmastra",
+  "type": "3-D",
+  language: "Hindi"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\movies:Main-config">
+        <flow-ref doc:name="GetMovies" doc:id="f783e01c-7964-49e0-9187-37f67f2a274c" name="GetMovies"/>
+		<ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Data: {
+    Movies: [
+      {
+        id: 1,
+        name: "Brahmastra",
+        "type": "3-D",
+        language: "Hindi",
+        raing: 4,
+        genre: "Drama"
+      }, 
+      {
+        id: 2,
+        name: "Thor",
+        "type": "3-D",
+        language: "English",
+        raing: 4,
+        genre: "Action"
+      }, 
+      {
+        id: 3,
+        name: "Malang",
+        "type": "2-D",
+        language: "Hindi",
+        raing: 3,
+        genre: "Drama"
+      }, 
+      {
+        id: 4,
+        name: "Jalsa",
+        "type": "2-D",
+        language: "Hindi",
+        raing: 4,
+        genre: "Drama"
+      }
+    ]
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\orderInvoice:Main-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionId: "API3416",
+  transactionStatus: "Success",
+  referenceNumber: "123456789"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\users:Main-config">
+		<flow-ref doc:name="getUsers" doc:id="a474cb4c-625f-45e5-9095-4157d100ba22" name="getUsers"/>
+		<logger level="INFO" message="get:\users:Main-config" />
+    </flow>
+    <flow name="get:\users\(user_id):Main-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="user_id">attributes.uriParams.'user_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  firstname: "Max",
+  lastname: "Mule",
+  age: 25,
+  address: {
+    street: "61 4th Street",
+    city: "NY"
+  },
+  phone: [
+    {
+      phoneType: "Mobile",
+      phoneNumber: "212 555-1234"
+    }, 
+    {
+      phoneType: "Phone",
+      phoneNumber: "646 555-4567"
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\booking:application\json:Main-config">
+        <flow-ref doc:name="CreateMovie" doc:id="8333eb96-7b52-41f5-9a9e-cccfbcccdebd" name="CreateMovie"/>
+		<ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Ticket: {
+    transactionId: "100-100",
+    "movie-id": 1,
+    movieName: "Brahmastra",
+    viewType: "3-D",
+    language: "Hindi",
+    theaterName: "PVR SB road",
+    screenNumber: "Audi-9",
+    pricePerSeat: 600,
+    bookingDetails: {
+      bookingdetail: [
+        {
+          seatNumber: "11-D"
+        }, 
+        {
+          seatNumber: "12-D"
+        }, 
+        {
+          seatNumber: "13-D"
+        }
+      ]
+    },
+    totalQty: 2,
+    totalPrice: 1200,
+    discount: 0,
+    finalAmount: 1200,
+    status: "Booked"
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\payment:application\json:Main-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Payment Success"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\users:application\json:Main-config">
+        <flow-ref doc:name="Createuser" doc:id="3299ca6c-d8b1-4d52-a56c-4b6c16348211" name="Createuser"/>
+		<logger level="INFO" message="post:\users:application\json:Main-config" />
+    </flow>
+    <flow name="post:\users:application\xml:Main-config">
+        <logger level="INFO" message="post:\users:application\xml:Main-config" />
+    </flow>
+</mule>

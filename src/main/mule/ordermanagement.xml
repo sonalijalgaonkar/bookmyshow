@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="discount" doc:id="da53f2de-121f-4de7-8b95-10045aa6a181" >
+		<choice doc:name="Choice" doc:id="51c7f8e8-d307-41e5-bb99-80c0f246c703" >
+			<when expression="#[vars.seats&lt;=5]">
+				<ee:transform doc:name="Transform Message" doc:id="70f66d38-a4e4-47df-aeaa-067fef720be1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ticketprice" : (vars.seats/100)*10
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression="#[(vars.seats&gt;=5) and (vars.seats&gt;=10)]">
+				<ee:transform doc:name="Transform Message" doc:id="af9f8953-6cc1-4b51-8f80-77d0f9541e72" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ticketprice" : (vars.seats/100)*20
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Transform Message" doc:id="213601be-aa01-4f6a-80af-7787e2ddbc79" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	message: "No discount applied"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="ordermanagementflow" doc:id="8953b998-e304-43c4-92cb-b61a3c3a5d39" >
+		<set-variable value="#[message.attributes.queryParams.Movie_Name__c]" doc:name="moviename" doc:id="354ef443-316e-48cd-ad0a-3efcaf2c17f3" variableName="moviename"/>
+		<set-variable value="" doc:name="seats" doc:id="a3d119f5-ef45-40b4-b138-2a95356641c5" variableName="seats"/>
+		<salesforce:query doc:name="Query" doc:id="4ffda1c9-9d88-4712-bb7f-233a297b790b" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id, Duration__c, Movie_ID__c, Movie_Title__c, Language__c FROM Movie__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="f6ca57d1-aae7-4218-9f75-70d581f7a1c6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="" doc:name="seatavailability" doc:id="aca252d2-0b41-44eb-ac04-76b56d992fe0" variableName="seatavailability"/>
+		<set-variable value="" doc:name="transaction" doc:id="8d3254d3-8144-47fd-88d5-0457c881dd5f" variableName="transaction"/>
+		<choice doc:name="Choice" doc:id="089aaec0-503b-44dc-85e9-c4cc2859fc5d" >
+			<when expression="#[vars.seatavailability&gt;0]">
+				<flow-ref doc:name="Flow Reference" doc:id="d16997fc-4eb0-4640-a27c-044f89c8d55a" name="discount"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="33ae057c-a9f2-4b51-905d-ada5c91281c3" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "All tickets are sold out"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

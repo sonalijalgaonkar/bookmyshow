@@ -1,0 +1,26 @@
+%dw 2.0
+
+type auto_3b17dd5f_4266_4c91_9dfb_1046e6893a1a_Input_Payload = {
+  Ticket: {
+    screenNumber?: String, 
+    totalQty: Number, 
+    totalPrice: Number, 
+    discount: Number, 
+    language: String, 
+    transactionId?: String, 
+    pricePerSeat: Number, 
+    bookingDetails?: {
+      bookingdetail: Array<{        seatNumber?: String,         _?: Any      }>, 
+      _?: Any
+    }, 
+    finalAmount: Number, 
+    viewType: String, 
+    theaterName: String, 
+    "movie-id": Number, 
+    movieName: String, 
+    status?: String, 
+    _?: Any
+  }, 
+  _?: Any
+}
+

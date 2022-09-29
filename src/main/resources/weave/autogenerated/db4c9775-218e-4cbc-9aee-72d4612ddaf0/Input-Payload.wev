@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_db4c9775_218e_4cbc_9aee_72d4612ddaf0_Input_Payload = {
+  firstname: String, 
+  address: String, 
+  age: String, 
+  lastname: String, 
+  _?: Any
+}
+
