@@ -24,7 +24,7 @@ payload
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="movieslogger" doc:id="4b5fb58c-2ac2-48b9-8666-2655f77d1b2a" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="4b5fb58c-2ac2-48b9-8666-2655f77d1b2a" message="#[payload]"/>
 		<error-handler >
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="00a7da3f-b8b0-4e25-bef1-d194183a1d43" type="ANY">
 				<ee:transform doc:name="Transform Message" doc:id="e269f03a-baec-4f49-97c7-ab1324a96d28" >
