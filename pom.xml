@@ -30,6 +30,9 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<classifier>mule-application</classifier>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.mulesoft.munit.tools</groupId>
@@ -47,18 +50,18 @@
 				</executions>
 				<configuration>
 					<cloudHubDeployment>
-   					<uri>https://anypoint.mulesoft.com</uri>
-    				<muleVersion>${mule.version}</muleVersion>
-    				<!-- Deploy User Parameter -->
-				    <username>${anypoint.username}</username>
-				    <password>${anypoint.password}</password>
-				    <!-- Environment Parameter -->
-				    <environment>${cloudhub.environment}</environment>
-				    <applicationName>${cloudhub.app}</applicationName>
-				    <businessGroup>${cloudhub.bg}</businessGroup>
-				    <workerType>${cloudhub.worker}</workerType>
-				    <objectStoreV2>true</objectStoreV2>
-				</cloudHubDeployment>
+						<uri>https://anypoint.mulesoft.com</uri>
+						<muleVersion>${mule.version}</muleVersion>
+						<!-- Deploy User Parameter -->
+						<username>${anypoint.username}</username>
+						<password>${anypoint.password}</password>
+						<!-- Environment Parameter -->
+						<environment>${cloudhub.environment}</environment>
+						<applicationName>${cloudhub.app}</applicationName>
+						<businessGroup>${cloudhub.bg}</businessGroup>
+						<workerType>${cloudhub.worker}</workerType>
+						<objectStoreV2>true</objectStoreV2>
+					</cloudHubDeployment>
 				</configuration>
 			</plugin>
 		</plugins>
