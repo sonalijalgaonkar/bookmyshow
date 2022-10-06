@@ -11,7 +11,7 @@ pipeline{
 				}
 		stage('Deploy'){
 		environment {
-ANYPOINT_CREDENTIALS = credentials('b230c434-2560-437f-8c81-55d518c01d95')
+ANYPOINT_CREDENTIALS = credentials('anypointplatform')
 }
 		steps{
 				
