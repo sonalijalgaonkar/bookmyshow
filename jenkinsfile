@@ -1,0 +1,24 @@
+pipeline{
+	agent any
+	
+	stages {
+		stage('Build'){
+			steps{
+				
+				bat "mvn -Dmaven.test.failure.ignore=true clean package"
+				
+				}
+				}
+		stage('Deploy'){
+		environment {
+ANYPOINT_CREDENTIALS = credentials('deploy-anypoint-user')
+}
+		steps{
+				
+				bat "mvn -U -V -e -B -DskipTests deploy -DmuleDeploy -Dusername=${ANYPOINT_CREDENTIALS_USR} -Dpassword=${ANYPOINT_CREDENTIALS_PSW}"
+				
+				}
+			}
+			}
+			
+			}
