@@ -1,5 +1,5 @@
 http:
-  port: "8082"
+  port: "8090"
  
 sf:
   username: "mkumarsagar09@gmail.com"
